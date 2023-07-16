@@ -14,7 +14,7 @@ const compression = require('compression');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
-const globalErrorHandler = require('./controllers/errorController');
+// const globalErrorHandler = require('./controllers/errorController');
 const routes = require('./routes/index');
 
 const app = express();

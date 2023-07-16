@@ -8,7 +8,7 @@ exports.getAllCategory = Factory.getAll(Category);
 exports.getCategory = Factory.getOne(
   Category,
   ['products', 'subCategories'],
-  ['title', 'name']
+  ['title']
 );
 exports.createCategory = Factory.createOne(Category);
 exports.updateCategory = Factory.updateOne(Category);
