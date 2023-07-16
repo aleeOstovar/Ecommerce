@@ -31,7 +31,10 @@ exports.uploadMultiplePhoto = upload.fields([
 exports.resizeSinglePhoto = catchAsync(async (req, res, next) => {
   //   let width = 1500;
   //   let heights = 500;
-
+  if (!req.file) {
+    // No file uploaded, proceed to the next middleware
+    return next();
+  }
   const route = req.originalUrl.split('/')[1].replace('/', ' ').split(' ')[0];
   req.file.filename = `${route}-${req.user.id}-${Date.now()}.jpeg`;
   const dir = `public/img/${route}`;

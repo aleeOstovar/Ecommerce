@@ -47,10 +47,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     req.body,
     'firstName',
     'lastName',
-    'userName',
     'phoneNumber',
-    'email',
-    'nationalCode'
+    'nationalCode',
+    'photo'
   );
   if (req.file) filteredBody.photo = req.file.filename;
   // 3) update user profile

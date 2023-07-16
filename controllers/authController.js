@@ -241,3 +241,20 @@ exports.changeRole = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.deleteAllUsers = catchAsync(async (req, res, next) => {
+  // Check if the user making the request has admin role
+  if (req.user.role !== 'admin') {
+    return next(
+      new AppError(403, 'You do not have permission to perform this action')
+    );
+  }
+
+  // Delete users except those with admin role
+  await User.deleteMany({ role: { $ne: 'admin' } });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});

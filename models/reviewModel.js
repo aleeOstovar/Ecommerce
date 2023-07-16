@@ -6,7 +6,7 @@ const reviewSchema = mongoose.Schema(
   {
     review: {
       type: String,
-      required: [true, ' لطفا نظر خود را وارد کنید'],
+      required: [true, ' please write a review '],
       trim: true,
     },
     rating: {
@@ -21,12 +21,12 @@ const reviewSchema = mongoose.Schema(
     product: {
       type: mongoose.Schema.ObjectId,
       ref: 'Product',
-      required: [true, 'یک نظر باید به یک محصول مربوط باشد'],
+      required: [true, 'a review must to belong to a product'],
     },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
-      required: [true, 'یک نظر باید به یک نویسنده مربوط باشد'],
+      required: [true, 'a review must to belong to a user'],
     },
   },
   {
@@ -47,7 +47,6 @@ reviewSchema.pre(/^find/, function (next) {
 
 reviewSchema.statics.calcAverageRatings = async function (productId) {
   productId = productId._id ? productId._id : productId;
-  console.log(productId);
   const stats = await this.aggregate([
     {
       $match: { product: productId },

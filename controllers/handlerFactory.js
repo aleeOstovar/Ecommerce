@@ -46,23 +46,32 @@ exports.getAll = (Model) =>
 
 exports.getOne = (Model, populateOptions, selectOptions) =>
   catchAsync(async (req, res, next) => {
-    let query = Model.findById(req.params.id);
+    let query;
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      // If the parameter is a valid MongoDB ID, search by ID
+      query = Model.findById(req.params.id);
+    } else {
+      // If the parameter is not a valid MongoDB ID, search by slug
+      query = Model.findOne({
+        $or: [{ slug: req.params.id }, { slugFa: req.params.id }],
+      });
+    }
 
     if (populateOptions) {
       // Check if populateOptions is provided
       if (Array.isArray(populateOptions)) {
         // If populateOptions is an array, populate each option
-        populateOptions.forEach((option) => {
-          query = query.populate({
+        query = query.populate(
+          populateOptions.map((option) => ({
             path: option,
-            select: selectOptions, // Use the selectOptions parameter
-          });
-        });
+            select: `${selectOptions.join(' ')}`,
+          }))
+        );
       } else {
         // If populateOptions is a single option, populate it
         query = query.populate({
           path: populateOptions,
-          select: selectOptions, // Use the selectOptions parameter
+          select: `${selectOptions.join(' ')}`,
         });
       }
     }
@@ -90,10 +99,27 @@ exports.createOne = (Model) =>
 
 exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    let query;
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      // If the parameter is a valid MongoDB ID, search by ID
+      query = Model.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+    } else {
+      // If the parameter is not a valid MongoDB ID, search by slug
+      query = Model.findOneAndUpdate(
+        { $or: [{ slug: req.params.id }, { slugFa: req.params.id }] },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    }
+
+    // Execute the query
+    const doc = await query;
     if (!doc) {
       return next(new AppError(404, `${Model.modelName} not found`));
     }
@@ -105,10 +131,32 @@ exports.updateOne = (Model) =>
 
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndDelete(req.params.id);
+    let query;
+
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      // If the parameter is a valid MongoDB ID, search by ID
+      query = Model.findByIdAndDelete(req.params.id);
+    } else {
+      // If the parameter is not a valid MongoDB ID, search by slug
+      query = Model.findOneAndDelete({
+        $or: [{ slug: req.params.id }, { slugFa: req.params.id }],
+      });
+    }
+    // Execute the query
+    const doc = await query;
+
     if (!doc) {
       return next(new AppError(404, `${Model.modelName} not found`));
     }
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  });
+exports.deleteAll = (Model) =>
+  catchAsync(async (req, res, next) => {
+    await Model.deleteMany({});
+
     res.status(204).json({
       status: 'success',
       data: null,
