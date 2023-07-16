@@ -91,14 +91,14 @@ app.all('*', (req, res, next) => {
     message: `can't find ${req.originalUrl} on this server`,
   });
 });
-// app.use((err, req, res, next) => {
-//   err.statusCode = err.statusCode || 500;
-//   err.status = err.status || 'error';
-//   res.status(err.statusCode).json({
-//     status: err.status,
-//     message: err.message,
-//   });
-// });
-app.use(globalErrorHandler);
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+});
+// app.use(globalErrorHandler);
 
 module.exports = app;

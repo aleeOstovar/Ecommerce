@@ -69,27 +69,11 @@ subcategorySchema.pre('save', function (next) {
 
   const slugEn = slugify(titleEn, { lower: true });
   const slugFa = farsiSlug(titleFa);
-  const slugEnRegex = new RegExp(`^(${slugEn})((-[0-9]+)?)$`, 'i');
-  const slugFaRegex = new RegExp(`^(${slugFa})((-[0-9]+)?)$`, 'i');
-  const model = this.constructor;
 
-  model
-    .countDocuments({
-      $or: [{ 'slug.en': slugEnRegex }, { 'slug.fa': slugFaRegex }],
-    })
-    .then((count) => {
-      if (count > 0) {
-        this.slug.en = `${slugEn}-${count}`;
-        this.slug.fa = `${slugFa}-${count}`;
-      } else {
-        this.slug.en = slugEn;
-        this.slug.fa = slugFa;
-      }
-      next();
-    })
-    .catch((error) => {
-      next(error);
-    });
+  this.slug.en = slugEn;
+  this.slug.fa = slugFa;
+
+  next();
 });
 
 const SubCategory = mongoose.model('SubCategory', subcategorySchema);
