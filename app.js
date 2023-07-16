@@ -10,10 +10,11 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compression = require('compression');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
-// const globalErrorHandler = require('./controllers/errorController');
+const globalErrorHandler = require('./controllers/errorController');
 const routes = require('./routes/index');
 
 const app = express();
@@ -79,7 +80,7 @@ const swaggeroptions = {
     path.resolve(__dirname, './models/*.'),
   ],
 };
-
+app.use(compression());
 const specs = swaggerJsdoc(swaggeroptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
@@ -90,13 +91,14 @@ app.all('*', (req, res, next) => {
     message: `can't find ${req.originalUrl} on this server`,
   });
 });
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+// app.use((err, req, res, next) => {
+//   err.statusCode = err.statusCode || 500;
+//   err.status = err.status || 'error';
+//   res.status(err.statusCode).json({
+//     status: err.status,
+//     message: err.message,
+//   });
+// });
+app.use(globalErrorHandler);
 
 module.exports = app;

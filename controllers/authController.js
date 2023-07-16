@@ -157,7 +157,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
   //generate reset Tokone
   const resetToken = user.createPasswordResetToken();
-  //console.log(resetToken);
+
   await user.save({ validateBeforeSave: false });
 
   try {
