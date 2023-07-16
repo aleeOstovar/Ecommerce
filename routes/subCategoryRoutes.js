@@ -33,9 +33,14 @@ const router = express.Router({ mergeParams: true });
  *       - multipart/form-data
  *     parameters:
  *       - in: formData
- *         name: name
- *         description: Name of the subCategory
+ *         name: title.fa
+ *         description: Name of the subCategory in Farsi
  *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: title.en
+ *         description: Name of the subCategory in english
+ *         required: false
  *         type: string
  *       - in: formData
  *         name: category
@@ -101,8 +106,13 @@ const router = express.Router({ mergeParams: true });
  *         schema:
  *           type: string
  *       - in: formData
- *         name: name
- *         description: subCategory name
+ *         name: title.fa
+ *         description: Name of the subCategory in Farsi
+ *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: title.en
+ *         description: Name of the subCategory in english
  *         required: false
  *         type: string
  *       - in: path

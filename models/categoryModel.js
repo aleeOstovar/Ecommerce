@@ -2,14 +2,20 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const { farsiSlug } = require('../utils/farsiSlug');
+const farsiSlug = require('../utils/farsiSlug');
 
 const categorySchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      trim: true,
-      required: [true, 'please enter category name'],
+    title: {
+      type: Map,
+      of: String,
+      validate: {
+        validator: function (value) {
+          return value && (value.get('fa') || value.get('en'));
+        },
+        message: 'At least a Farsi or English title is required',
+      },
+      required: true,
     },
     slug: {
       en: {
@@ -48,8 +54,10 @@ categorySchema.virtual('products', {
   localField: '_id',
 });
 categorySchema.pre('save', function (next) {
-  const titleEn = this.title.get('en');
+  let titleEn = this.title.get('en');
   const titleFa = this.title.get('fa');
+
+  if (!titleEn) titleEn = titleFa;
 
   const slugEn = slugify(titleEn, { lower: true });
   const slugFa = farsiSlug(titleFa);
@@ -75,22 +83,5 @@ categorySchema.pre('save', function (next) {
       next(error);
     });
 });
-categorySchema.pre(/^findOneAndUpdate|^findByIdAndUpdate/, function (next) {
-  if (this._update.title) {
-    const titleEn = this._update.title.en;
-    const titleFa = this._update.title.fa;
-
-    const slugEn = slugify(titleEn, { lower: true });
-    const slugFa = farsiSlug(titleFa);
-
-    this._update.slug = {
-      en: slugEn,
-      fa: slugFa,
-    };
-  }
-
-  next();
-});
-
 const Category = mongoose.model('Category', categorySchema);
 module.exports = Category;

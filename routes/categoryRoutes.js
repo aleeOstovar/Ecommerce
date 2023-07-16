@@ -36,9 +36,14 @@ const router = express.Router({ mergeParams: true });
  *       - multipart/form-data
  *     parameters:
  *       - in: formData
- *         name: name
- *         description: Name of the category
+ *         name: title.fa
+ *         description: Name of the category in Farsi
  *         required: true
+ *         type: string
+ *       - in: formData
+ *         name: title.en
+ *         description: Name of the category in English
+ *         required: false
  *         type: string
  *       - in: formData
  *         name: coverImage
@@ -84,13 +89,18 @@ const router = express.Router({ mergeParams: true });
  *     parameters:
  *       - in: path
  *         name: id
- *         required: false
+ *         required: true
  *         description: ID of the category
  *         schema:
  *           type: string
  *       - in: formData
- *         name: name
- *         description: category name
+ *         name: title.fa
+ *         description: Title of the category in Persian (Farsi)
+ *         required: false
+ *         type: string
+ *       - in: formData
+ *         name: title.en
+ *         description: Title of the category in English
  *         required: false
  *         type: string
  *       - in: formData
@@ -129,9 +139,8 @@ const router = express.Router({ mergeParams: true });
 
 router.route('/').get(categoryController.getAllCategory);
 router.route('/:id').get(categoryController.getCategory);
-// router.route('/:slug').get(categoryController.getCategorySlug);
 
-// router.use('/:categoryId/subCategory', subCategoryRouter);
+router.use('/:categoryId/subCategory', subCategoryRouter);
 
 router.use(
   authController.protect,

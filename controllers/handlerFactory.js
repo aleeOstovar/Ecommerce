@@ -1,30 +1,10 @@
+/* eslint-disable node/no-unpublished-require */
+/* eslint-disable import/no-extraneous-dependencies */
+const slugify = require('slugify');
+const farsiSlug = require('../utils/farsiSlug');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
-// exports.getAll = (Model) =>
-//   catchAsync(async (req, res, next) => {
-//     // For nested routes
-//     let filter = {};
-//     if (req.params.postId) {
-//       filter = { tour: req.params.postId };
-//     }
-
-//     const features = new APIFeatures(Model.find(filter), req.query)
-//       .filter()
-//       .sort()
-//       .limitFields()
-//       .paginate()
-//       .search();
-
-//     const doc = await features.query;
-
-//     res.status(200).json({
-//       status: 'success',
-//       results: doc.length,
-//       data: { doc },
-//     });
-//   });
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -99,6 +79,12 @@ exports.createOne = (Model) =>
 
 exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
+    if (req.body['title.fa']) {
+      req.body['slug.fa'] = farsiSlug(req.body['title.fa']);
+    }
+    if (req.body['title.en']) {
+      req.body['slug.en'] = slugify(req.body['title.en'], { lower: true });
+    }
     let query;
     if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       // If the parameter is a valid MongoDB ID, search by ID
@@ -117,7 +103,6 @@ exports.updateOne = (Model) =>
         }
       );
     }
-
     // Execute the query
     const doc = await query;
     if (!doc) {

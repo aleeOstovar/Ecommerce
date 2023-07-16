@@ -6,8 +6,15 @@ const farsiSlug = require('../utils/farsiSlug');
 
 const subcategorySchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    title: {
+      type: Map,
+      of: String,
+      validate: {
+        validator: function (value) {
+          return value && (value.get('fa') || value.get('en'));
+        },
+        message: 'At least a Farsi or English title is required',
+      },
       required: true,
     },
     category: {
@@ -55,8 +62,10 @@ subcategorySchema.virtual('products', {
 });
 
 subcategorySchema.pre('save', function (next) {
-  const titleEn = this.title.get('en');
+  let titleEn = this.title.get('en');
   const titleFa = this.title.get('fa');
+
+  if (!titleEn) titleEn = titleFa;
 
   const slugEn = slugify(titleEn, { lower: true });
   const slugFa = farsiSlug(titleFa);
@@ -81,22 +90,6 @@ subcategorySchema.pre('save', function (next) {
     .catch((error) => {
       next(error);
     });
-});
-subcategorySchema.pre(/^findOneAndUpdate|^findByIdAndUpdate/, function (next) {
-  if (this._update.title) {
-    const titleEn = this._update.title.en;
-    const titleFa = this._update.title.fa;
-
-    const slugEn = slugify(titleEn, { lower: true });
-    const slugFa = farsiSlug(titleFa);
-
-    this._update.slug = {
-      en: slugEn,
-      fa: slugFa,
-    };
-  }
-
-  next();
 });
 
 const SubCategory = mongoose.model('SubCategory', subcategorySchema);
