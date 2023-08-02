@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cors = require('cors');
 const compression = require('compression');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -18,6 +19,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const routes = require('./routes/index');
 
 const app = express();
+app.enable('trust proxy');
 
 //* set security HTTP headers
 app.use(helmet());
@@ -51,6 +53,18 @@ app.use(hpp({ whitelist: ['price'] }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+//setup cors
+app.use(
+  cors({
+    origin: 'https://13.51.178.2',
+  })
+);
+app.options(
+  '*',
+  cors({
+    origin: 'https://13.51.178.2',
+  })
+);
 //*serving statics files
 app.use(express.static(path.join(__dirname, 'public')));
 
