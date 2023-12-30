@@ -33,7 +33,11 @@ exports.getOne = (Model, populateOptions, selectOptions) =>
     } else {
       // If the parameter is not a valid MongoDB ID, search by slug
       query = Model.findOne({
-        $or: [{ 'slug.en': req.params.id }, { 'slug.fa': req.params.id }],
+        $or: [
+          { 'slug.en': req.params.id },
+          { 'slug.fa': req.params.id },
+          { customId: req.params.id },
+        ],
       });
     }
 
@@ -95,7 +99,13 @@ exports.updateOne = (Model) =>
     } else {
       // If the parameter is not a valid MongoDB ID, search by slug
       query = Model.findOneAndUpdate(
-        { $or: [{ 'slug.en': req.params.id }, { 'slug.fa': req.params.id }] },
+        {
+          $or: [
+            { 'slug.en': req.params.id },
+            { 'slug.fa': req.params.id },
+            { customId: req.params.id },
+          ],
+        },
         req.body,
         {
           new: true,
@@ -124,7 +134,11 @@ exports.deleteOne = (Model) =>
     } else {
       // If the parameter is not a valid MongoDB ID, search by slug
       query = Model.findOneAndDelete({
-        $or: [{ 'slug.en': req.params.id }, { 'slug.fa': req.params.id }],
+        $or: [
+          { 'slug.en': req.params.id },
+          { 'slug.fa': req.params.id },
+          { customId: req.params.id },
+        ],
       });
     }
     // Execute the query

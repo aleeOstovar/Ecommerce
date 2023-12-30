@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const farsiSlug = require('../utils/farsiSlug');
+const { getNextCustomId } = require('../utils/utility');
 
 const categorySchema = new mongoose.Schema(
   {
@@ -34,7 +35,14 @@ const categorySchema = new mongoose.Schema(
       },
     },
     coverImage: {
-      type: String,
+      small: { type: String, default: 'public/img/noImage-small.jpg' },
+      medium: { type: String, default: 'public/img/noImage-medium.jpg' },
+      large: { type: String, default: 'public/img/noImage-large.jpg' },
+    },
+
+    customId: {
+      type: Number,
+      unique: true,
     },
   },
   {
@@ -43,6 +51,15 @@ const categorySchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+categorySchema.index({
+  customId: 1,
+  'slug.en': 'text',
+  'slug.fa': 'text',
+  'title.en': 'text',
+  'title.fa': 'text',
+  'description.en': 'text',
+  'description.fa': 'text',
+});
 categorySchema.virtual('subCategories', {
   ref: 'SubCategory',
   foreignField: 'category',
@@ -52,6 +69,12 @@ categorySchema.virtual('products', {
   ref: 'Product',
   foreignField: 'category',
   localField: '_id',
+});
+categorySchema.pre('save', async function (next) {
+  if (this.isNew) {
+    this.customId = await getNextCustomId(this.constructor);
+  }
+  next();
 });
 categorySchema.pre('save', function (next) {
   let titleEn = this.title.get('en');

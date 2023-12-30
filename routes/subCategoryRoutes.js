@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const subCategoryController = require('../controllers/subCategoryController');
+const productRouter = require('./productRoutes');
 const Uploader = require('../controllers/uploadController');
 
 const router = express.Router({ mergeParams: true });
@@ -189,5 +190,6 @@ router
     subCategoryController.updateSubCategory
   )
   .delete(subCategoryController.deleteSubCategory);
-
+//nested route on product
+router.use('/subCatId/products', productRouter);
 module.exports = router;

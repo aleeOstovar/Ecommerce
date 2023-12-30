@@ -2,9 +2,14 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const { getNextCustomId } = require('../utils/utility');
 
 const userSchema = new mongoose.Schema(
   {
+    customId: {
+      type: Number,
+      unique: true,
+    },
     firstName: {
       type: String,
       required: true,
@@ -32,8 +37,9 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
     photo: {
-      type: String,
-      default: 'default.jpg',
+      small: { type: String, default: 'public/img/userNoImage-small.jpg' },
+      medium: { type: String, default: 'public/img/userNoImage-medium.jpg' },
+      large: { type: String, default: 'public/img/userNoImage-large.jpg' },
     },
     role: {
       type: String,
@@ -91,6 +97,12 @@ userSchema.pre('save', async function (next) {
   } catch (e) {
     return next(e);
   }
+});
+userSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    this.customId = await getNextCustomId(this.constructor);
+  }
+  next();
 });
 
 //adding chaged password date

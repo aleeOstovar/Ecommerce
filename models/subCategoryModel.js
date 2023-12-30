@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const farsiSlug = require('../utils/farsiSlug');
+const { getNextCustomId } = require('../utils/utility');
 
 const subcategorySchema = new mongoose.Schema(
   {
@@ -39,7 +40,13 @@ const subcategorySchema = new mongoose.Schema(
       },
     },
     coverImage: {
-      type: String,
+      small: { type: String, default: 'public/img/noImage-small.jpg' },
+      medium: { type: String, default: 'public/img/noImage-medium.jpg' },
+      large: { type: String, default: 'public/img/noImage-large.jpg' },
+    },
+    customId: {
+      type: Number,
+      unique: true,
     },
   },
   {
@@ -59,6 +66,12 @@ subcategorySchema.virtual('products', {
   ref: 'Product',
   foreignField: 'subCategory',
   localField: '_id',
+});
+subcategorySchema.pre('save', async function (next) {
+  if (this.isNew) {
+    this.customId = await getNextCustomId(this.constructor);
+  }
+  next();
 });
 
 subcategorySchema.pre('save', function (next) {

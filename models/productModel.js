@@ -3,6 +3,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const farsiSlug = require('../utils/farsiSlug');
+
 // const translateValue = require('../utils/translatorModule');
 // const catchAsync = require('../utils/catchAsync');
 
@@ -96,7 +97,7 @@ const productSchema = new mongoose.Schema(
     },
     images: {
       type: [String],
-      required: false,
+      required: true,
     },
     brand: {
       type: String,
@@ -121,8 +122,13 @@ const productSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    customId: {
+      type: Number,
+      unique: true,
+    },
   },
   {
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
@@ -137,7 +143,9 @@ productSchema.virtual('reviews', {
 productSchema.index({
   price: 1,
   ratingAvg: -1,
-  slug: 1,
+  customId: 1,
+  'slug.en': 'text',
+  'slug.fa': 'text',
   'title.en': 'text',
   'title.fa': 'text',
   'description.en': 'text',

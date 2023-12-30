@@ -54,17 +54,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 //setup cors
-app.use(
-  cors({
-    origin: 'https://13.51.178.2',
-  })
-);
-app.options(
-  '*',
-  cors({
-    origin: 'https://13.51.178.2',
-  })
-);
+app.use(cors());
+app.options('*', cors());
 //*serving statics files
 app.use(express.static(path.join(__dirname, 'public')));
 
